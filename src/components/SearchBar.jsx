@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { allMovies } from "../data/allMovies";   // correct import
+import { getMovies } from '../api/moviesApi';
 
 const SearchBar = () => {
   const [query, setQuery] = useState('');
@@ -23,18 +23,28 @@ const SearchBar = () => {
 
   // Search filter fix — using allMovies instead of movies
   useEffect(() => {
+    let mounted = true;
     if (query.trim().length > 0) {
-      const filtered = allMovies
-        .filter(movie =>
-          movie.title.toLowerCase().includes(query.toLowerCase())
-        )
-        .slice(0, 8); // You can increase results number
-      setSuggestions(filtered);
-      setShowSuggestions(true);
+      (async () => {
+        try {
+          const list = await getMovies();
+          if (!mounted) return;
+          const filtered = (list || [])
+            .filter(movie => (movie.title || '').toLowerCase().includes(query.toLowerCase()))
+            .slice(0, 8);
+          setSuggestions(filtered);
+          setShowSuggestions(true);
+        } catch (err) {
+          console.error('Search suggestions failed:', err);
+          setSuggestions([]);
+          setShowSuggestions(false);
+        }
+      })();
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
     }
+    return () => { mounted = false; };
   }, [query]);
 
   const handleSubmit = (e) => {

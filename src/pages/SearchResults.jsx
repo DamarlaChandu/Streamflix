@@ -1,22 +1,38 @@
 import { useSearchParams, Link } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { allMovies as movies } from "../data/allMovies";
+import { getMovies } from '../api/moviesApi';
 import MovieCard from '../components/MovieCard';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
 
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await getMovies();
+        if (mounted) setMovies(data || []);
+      } catch (err) {
+        console.error('Failed to load movies for search:', err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
   const results = useMemo(() => {
     if (!query.trim()) return [];
+    const q = query.toLowerCase();
     return movies.filter(movie =>
-      movie.title.toLowerCase().includes(query.toLowerCase()) ||
-      movie.genre.toLowerCase().includes(query.toLowerCase()) ||
-      movie.director.toLowerCase().includes(query.toLowerCase()) ||
-      movie.cast.some(actor => actor.toLowerCase().includes(query.toLowerCase()))
+      (movie.title || '').toLowerCase().includes(q) ||
+      (movie.genre || '').toLowerCase().includes(q) ||
+      (movie.director || '').toLowerCase().includes(q) ||
+      (movie.cast || []).some(actor => (actor || '').toLowerCase().includes(q))
     );
-  }, [query]);
+  }, [query, movies]);
 
   return (
     <div className="min-h-screen bg-netflix-black text-white pt-20 px-4 md:px-8 pb-12">

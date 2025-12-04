@@ -4,13 +4,14 @@ import { motion } from 'framer-motion';
 import { allMovies } from "../data/allMovies";
 import TrailerModal from './TrailerModal'; // You already have this
 
-const HeroBanner = () => {
+const HeroBanner = ({ movies = null }) => {
   const [featuredMovie, setFeaturedMovie] = useState(null);
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
 
   useEffect(() => {
+    const source = movies && movies.length ? movies : allMovies;
     // Selecting only high-rated movies to display
-    const topMovies = allMovies.filter(m => m.rating >= 8.5);
+    const topMovies = source.filter(m => m.rating >= 8.5);
     const randomMovie = topMovies[Math.floor(Math.random() * topMovies.length)];
     setFeaturedMovie(randomMovie);
   }, []);

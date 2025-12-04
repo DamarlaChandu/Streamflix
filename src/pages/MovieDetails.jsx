@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { allMovies as movies } from "../data/allMovies";
+import { getMovieById } from '../api/moviesApi';
 import TrailerModal from "../components/TrailerModal";   // <-- Only using TrailerModal
 import { useWatchlist } from "../context/WatchlistContext";
 import MovieCard from "../components/MovieCard";
@@ -11,15 +11,52 @@ const MovieDetails = () => {
   const [showTrailer, setShowTrailer] = useState(false);
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
 
-  const movie = movies.find(m => m.id === Number(id));
+  const [movie, setMovie] = useState(null);
+  const [similar, setSimilar] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await getMovieById(id);
+        if (mounted) setMovie(data);
+      } catch (err) {
+        console.error('Failed to load movie details:', err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [id]);
+
+  // Fetch similar movies when movie loads
+  useEffect(() => {
+    if (!movie) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const { getMovies } = await import('../api/moviesApi');
+        const allMovies = await getMovies();
+        if (mounted) {
+          const similarList = (allMovies || [])
+            .filter(m => m.genre === movie.genre && String(m.id) !== String(movie.id))
+            .slice(0, 12);
+          setSimilar(similarList);
+        }
+      } catch (err) {
+        console.error('Failed to load similar movies:', err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [movie]);
+
+  if (loading) return <p className="text-white text-center mt-40">Loading...</p>;
   if (!movie)
     return <h1 className="text-white text-center mt-40 text-5xl">Movie Not Found ❌</h1>;
 
   const inWatchlist = isInWatchlist(movie.id);
-
-  const similar = movies
-    .filter(m => m.genre === movie.genre && m.id !== movie.id)
-    .slice(0, 12);
 
   return (
     <>
