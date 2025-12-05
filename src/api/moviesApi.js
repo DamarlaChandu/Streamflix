@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000";
+// Use Vite env var when deployed. In development fall back to localhost:5000.
+// Deployed backend URL: https://streamflix-1-w8zn.onrender.com
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:5000" : "https://streamflix-1-w8zn.onrender.com");
 
 // Movies collection (from db.json -> "movies")
 export const getMovies = async () => {
