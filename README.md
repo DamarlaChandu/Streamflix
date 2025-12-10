@@ -45,7 +45,7 @@ npm run dev
 ```bash
 npm run build
 ```
-
+Project Structure
 src/
  ├─ components/
  │   ├─ Navbar.jsx
