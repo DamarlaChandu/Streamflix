@@ -61,17 +61,21 @@ src/
  │   ├─ MovieCard.jsx
  │   ├─ SearchBar.jsx
  │   └─ TrailerModal.jsx
+ │
  ├─ pages/
  │   ├─ Home.jsx
  │   ├─ MovieDetails.jsx
  │   ├─ Watchlist.jsx
  │   └─ SearchResults.jsx
+ │
  ├─ data/
  │   ├─ movies.js          # main dataset (1–50)
  │   ├─ moviesExtra.js     # extended dataset (51–77+)
  │   └─ allMovies.js       # merged dataset for entire app
+ │
  ├─ context/
  │   └─ WatchlistContext.jsx
+ │
  ├─ App.jsx
  ├─ main.jsx
  └─ index.css
